@@ -8,6 +8,18 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import axios from 'axios';
+import { fDateTime } from '../utils/formatTime';
+
+/**
+ * Search functionality
+ * Pages and routing
+ * Page refresh when time expires
+ * Sorting
+ * Pricing and Date utils
+ * Mobile responsive
+ * CSS
+ *  
+ */
 
 export default function StickyHeadTable() {
   const [page, setPage] = useState(0);
@@ -15,17 +27,25 @@ export default function StickyHeadTable() {
 
   const [symbols, setSymbols] = useState([]);
   const [columnHeading, setColumnHeading] = useState([]);
+  const [refreshTime, setRefreshTime] = useState();
+
+  const [systemTime, setSystemTime] = useState(new Date());
 
   useEffect(()=>{
-    axios.get('https://prototype.sbulltech.com/api/v2/instruments')
-      .then(res=>{
-        const response = res.data.split('\n');
-        setColumnHeading(response[0].split(','));
-        setSymbols(response.splice(1));
-      }).catch(err=>{
-        console.log(err);
-      });
+    fetchData();
   },[]);
+
+  const fetchData = () => {
+    axios.get('https://prototype.sbulltech.com/api/v2/instruments')
+    .then(res=>{
+      const response = res.data.split('\n'); // Splits the response via enter
+      setColumnHeading(response[0].split(',').slice(0,3)); // Removes the heading for date
+      const symbolSet = response.slice(1); // Saves the symbols
+      setSymbols(symbolSet);
+    }).catch(err=>{
+      console.log(err);
+    });
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -37,7 +57,7 @@ export default function StickyHeadTable() {
   };
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Paper sx={{overflow: 'hidden', margin: 4 }}>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -46,7 +66,7 @@ export default function StickyHeadTable() {
                 <TableCell
                   key={index}
                   align='left'
-                  style={{ minWidth: 400 }}
+                  // style={{ minWidth: 400 }}
                 >
                   {column}
                 </TableCell>

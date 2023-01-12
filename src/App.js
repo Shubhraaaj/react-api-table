@@ -5,7 +5,7 @@ import StickyHeadTable from './components/StickyHeadTable';
 function App() {
   return (
     <div className="App">
-      {/* <StickyHeadTable /> */}
+      <StickyHeadTable />
       <QuotesTable />
     </div>
   );

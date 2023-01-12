@@ -12,23 +12,40 @@ import axios from 'axios';
 export default function QuotesTable({symbol='DABUR'}) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
+  const [timer, setTimer] = useState(0);
   const [quotes, setQuotes] = useState([]);
 
+  const fetchData = () => {
+      axios.get(`https://prototype.sbulltech.com/api/v2/quotes/${symbol}`)
+        .then(res=>{
+          const buySellData = res.data.payload[symbol];
+          setQuotes(buySellData);
+          const sortedTime = buySellData.sort((a,b)=>{
+            return a.valid_till - b.valid_till;
+          });
+          const validTill = sortedTime[0].valid_till;
+          const fetchTime = sortedTime[0].time;
+          const differece = Math.abs(Date.parse(validTill)-Date.parse(fetchTime)); // Difference between two strins
+          setTimer(new Date(differece).getSeconds()); // Time to seconds
+        }).catch(err=>{
+          console.log(err);
+        });
+  };
+
   useEffect(()=>{
-    axios.get(`https://prototype.sbulltech.com/api/v2/quotes/${symbol}`)
-      .then(res=>{
-        setQuotes(res.data.payload[symbol]);
-        console.log(res.data.payload[symbol]);
-      }).catch(err=>{
-        console.log(err);
-      });
-  },[]);
+    if(timer<1)
+      fetchData();
+    else{
+      setTimeout(function(){
+        setTimer(timer-1);
+      }, 1000);
+    }
+  },[timer]);
 
   const columnHeading = [
     { id: 'time', label: 'Time', minWidth: 100, align: 'left' },
     { id: 'price', label: 'Price', minWidth: 100, align: 'left' },
-    { id: 'valid_till', label: 'Valid Till', minWidth: 100, align: 'left' }
+    // { id: 'valid_till', label: 'Valid Till', minWidth: 100, align: 'left' }
   ];
 
   const handleChangePage = (event, newPage) => {
@@ -41,7 +58,8 @@ export default function QuotesTable({symbol='DABUR'}) {
   };
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Paper sx={{ overflow: 'hidden', margin: 4 }}>
+      <p>Page refreshes in {timer} seconds</p>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -61,18 +79,12 @@ export default function QuotesTable({symbol='DABUR'}) {
             {quotes
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
-                console.log(row);
+                // console.log(row);
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                    {/* {columnHeading.map((column, index) => {
-                      const newValue = row.split(',');
-                      return ( */}
-                        <TableCell align='left'>{row.time}</TableCell>
-                        <TableCell align='left'>{row.price}</TableCell>
-                        <TableCell align='left'>{row.valid_till}</TableCell>
-                      {/* ); */}
-                    {/* })} */}
-                  </TableRow>
+                      <TableCell align='left'>{row.time}</TableCell>
+                      <TableCell align='left'>{Math.round(row.price*100)/100}</TableCell>
+                </TableRow>
                 );
               })}
           </TableBody>
