@@ -8,13 +8,15 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
-export default function QuotesTable({symbol='DABUR'}) {
+export default function QuotesTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [timer, setTimer] = useState(0);
   const [quotes, setQuotes] = useState([]);
-
+  const location = useLocation();
+  const [symbol, setSymbol] = useState(location.pathname.split('/')[2]);
   const fetchData = () => {
       axios.get(`https://prototype.sbulltech.com/api/v2/quotes/${symbol}`)
         .then(res=>{
@@ -79,12 +81,11 @@ export default function QuotesTable({symbol='DABUR'}) {
             {quotes
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
-                // console.log(row);
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                       <TableCell align='left'>{row.time}</TableCell>
                       <TableCell align='left'>{Math.round(row.price*100)/100}</TableCell>
-                </TableRow>
+                  </TableRow>
                 );
               })}
           </TableBody>

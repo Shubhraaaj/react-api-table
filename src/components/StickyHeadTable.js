@@ -8,7 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import axios from 'axios';
-import { fDateTime } from '../utils/formatTime';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Search functionality
@@ -27,9 +27,7 @@ export default function StickyHeadTable() {
 
   const [symbols, setSymbols] = useState([]);
   const [columnHeading, setColumnHeading] = useState([]);
-  const [refreshTime, setRefreshTime] = useState();
-
-  const [systemTime, setSystemTime] = useState(new Date());
+  const navigate = useNavigate();
 
   useEffect(()=>{
     fetchData();
@@ -56,6 +54,11 @@ export default function StickyHeadTable() {
     setPage(0);
   };
 
+  const handleSymbolClick = (symbol) => {
+    const symbolClicked = symbol.split(',')[0];
+    navigate(`/quotes/${symbolClicked}`);
+  };
+
   return (
     <Paper sx={{overflow: 'hidden', margin: 4 }}>
       <TableContainer sx={{ maxHeight: 440 }}>
@@ -78,7 +81,7 @@ export default function StickyHeadTable() {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                  <TableRow onClick={()=>handleSymbolClick(row)} hover role="checkbox" tabIndex={-1} key={row.code}>
                     {columnHeading.map((column, index) => {
                       const newValue = row.split(',');
                       return (
