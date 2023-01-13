@@ -9,37 +9,68 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Autocomplete, TextField } from '@mui/material';
+import Fuse from 'fuse.js'
 
 /**
- * Search functionality
- * Pages and routing
- * Page refresh when time expires
- * Sorting
- * Pricing and Date utils
- * Mobile responsive
- * CSS
+ * Search functionality - 1hr
+ * Pages and routing - DONE
+ * Page refresh when time expires - DONE
+ * Sorting - 1hr
+ * Pricing and Date utils - DONE
+ * Mobile responsive - 1hr
+ * CSS - 6hrs
  *  
  */
 
 export default function StickyHeadTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const [symbols, setSymbols] = useState([]);
-  const [columnHeading, setColumnHeading] = useState([]);
+  const [tickers, setTickers] = useState([]);
   const navigate = useNavigate();
-
+  const [query, setQuery] = useState(" ");
+  const [filteredTickers, setFilteredTickers] = useState([]);
   useEffect(()=>{
     fetchData();
   },[]);
 
+  const fuse = new Fuse(tickers, {
+    keys: [{
+      name: 'name',
+      weight: 0.6
+    },
+    {
+      name: 'symbol',
+      weight: 0.4
+    }]
+  });
+
+  useEffect(()=>{
+    setFilteredTickers(fuse.search(query));
+  },[query, tickers]);
+
+  const columnHeadings = [
+    { id: 'symbol', label: 'Symbol', minWidth: 100, align: 'left' },
+    { id: 'name', label: 'Name', minWidth: 100, align: 'left' },
+    { id: 'sector', label: 'Sector', minWidth: 100, align: 'left' },
+  ];
+
   const fetchData = () => {
     axios.get('https://prototype.sbulltech.com/api/v2/instruments')
     .then(res=>{
-      const response = res.data.split('\n'); // Splits the response via enter
-      setColumnHeading(response[0].split(',').slice(0,3)); // Removes the heading for date
-      const symbolSet = response.slice(1); // Saves the symbols
-      setSymbols(symbolSet);
+      let responseData = res.data.trim();
+      const symbols = responseData.split('\n'); // Splits the response via enter
+      const symbolSet = symbols.slice(1); // Saves the symbols
+      const tickersArray = symbolSet.map((symbol)=>{
+        let splits = symbol.split(',');
+        let newObject = {
+          symbol: splits[0],
+          name: splits[1],
+          sector: (splits[2]===""?"NA":splits[2])
+        };
+        return newObject;
+      });
+      setTickers(tickersArray);
     }).catch(err=>{
       console.log(err);
     });
@@ -55,39 +86,41 @@ export default function StickyHeadTable() {
   };
 
   const handleSymbolClick = (symbol) => {
-    const symbolClicked = symbol.split(',')[0];
-    navigate(`/quotes/${symbolClicked}`);
+    navigate(`/quotes/${symbol}`);
   };
 
   return (
     <Paper sx={{overflow: 'hidden', margin: 4 }}>
+      <TextField
+        sx={{margin:2}}
+        label="Search here..."
+        onChange={(event)=>setQuery(" "+event.target.value)}
+      />
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columnHeading.map((column, index) => (
+              {columnHeadings.map((column, index) => (
                 <TableCell
-                  key={index}
+                  key={column.id}
                   align='left'
                   // style={{ minWidth: 400 }}
                 >
-                  {column}
+                  {column.label}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {symbols
+            {filteredTickers
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
+                const { name, symbol, sector } = row.item;
                 return (
-                  <TableRow onClick={()=>handleSymbolClick(row)} hover role="checkbox" tabIndex={-1} key={row.code}>
-                    {columnHeading.map((column, index) => {
-                      const newValue = row.split(',');
-                      return (
-                        <TableCell key={column} align='left'>{newValue[index]}</TableCell>
-                      );
-                    })}
+                  <TableRow onClick={()=>handleSymbolClick(symbol)} hover role="checkbox" tabIndex={-1} key={symbol}>
+                    <TableCell align='left'>{symbol}</TableCell>
+                    <TableCell align='left'>{name}</TableCell>
+                    <TableCell align='left'>{sector}</TableCell>
                   </TableRow>
                 );
               })}
@@ -97,7 +130,7 @@ export default function StickyHeadTable() {
       <TablePagination
         rowsPerPageOptions={[5, 10, 15]}
         component="div"
-        count={symbols.length}
+        count={tickers.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
