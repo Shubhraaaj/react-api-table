@@ -9,7 +9,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Autocomplete, TextField } from '@mui/material';
+import { Autocomplete, Container, TextField, Typography } from '@mui/material';
 import Fuse from 'fuse.js'
 
 /**
@@ -92,20 +92,23 @@ export default function StickyHeadTable() {
   return (
     <Paper sx={{overflow: 'hidden', margin: 4 }}>
       <TextField
-        sx={{margin:2}}
         label="Search here..."
+        size='small'
+        sx={{m:2}}
+        color='success'
         onChange={(event)=>setQuery(" "+event.target.value)}
       />
-      <TableContainer sx={{ maxHeight: 440 }}>
+      <TableContainer sx={{ maxHeight: 380, minHeight: 380 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
               {columnHeadings.map((column, index) => (
                 <TableCell
                   key={column.id}
+                  style={{ backgroundColor: '#1B9C6E' }}
                   align='left'
                 >
-                  {column.label}
+                  <Typography sx={{fontWeight: 'bold', color: 'white'}}>{column.label}</Typography>
                 </TableCell>
               ))}
             </TableRow>
