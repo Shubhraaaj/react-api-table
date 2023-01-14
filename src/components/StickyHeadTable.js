@@ -13,19 +13,19 @@ import { Autocomplete, TextField } from '@mui/material';
 import Fuse from 'fuse.js'
 
 /**
- * Search functionality - 1hr
+ * Search functionality - DONE
  * Pages and routing - DONE
  * Page refresh when time expires - DONE
- * Sorting - 1hr
+ * Sorting - DONE
  * Pricing and Date utils - DONE
  * Mobile responsive - 1hr
  * CSS - 6hrs
- *  
+ * UI Changes - 6hrs 
  */
 
 export default function StickyHeadTable() {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [tickers, setTickers] = useState([]);
   const navigate = useNavigate();
   const [query, setQuery] = useState(" ");
@@ -104,7 +104,6 @@ export default function StickyHeadTable() {
                 <TableCell
                   key={column.id}
                   align='left'
-                  // style={{ minWidth: 400 }}
                 >
                   {column.label}
                 </TableCell>
