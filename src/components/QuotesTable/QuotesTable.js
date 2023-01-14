@@ -9,11 +9,9 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FaArrowDown, FaArrowLeft, FaArrowUp } from 'react-icons/fa';
-import { CountdownCircleTimer } from 'react-countdown-circle-timer';
-import { Box, Grid, Typography } from '@mui/material';
-import { Container, Stack } from '@mui/system';
-import Back from './Back/Back';
+import { Typography } from '@mui/material';
+import QuotesBar from '../QuotesBar/QuotesBar';
+import QuotesHead from '../QuotesHead/QuotesHead';
 
 export default function QuotesTable() {
   const [page, setPage] = useState(0);
@@ -23,9 +21,7 @@ export default function QuotesTable() {
   const [orderby, setOrderby] = useState('time');
   const [quotes, setQuotes] = useState([]);
   const location = useLocation();
-  const [symbol, setSymbol] = useState(location.pathname.split('/')[2]);
-
-  const navigate = useNavigate();
+  const symbol = location.pathname.split('/')[2];
 
   const fetchData = () => {
       axios.get(`https://prototype.sbulltech.com/api/v2/quotes/${symbol}`)
@@ -38,10 +34,6 @@ export default function QuotesTable() {
             if(refreshTime<maxRefresh)
                 maxRefresh = refreshTime;
           });
-          // const validTill = sortedTime[0].valid_till;
-          // const fetchTime = sortedTime[0].time;
-          // const differece = Math.abs(Date.parse(validTill)-Date.parse(fetchTime)); // Difference between two strins
-          // setTimer(new Date(differece).getSeconds()); // Time to seconds
           setTimers(maxRefresh);
         }).catch(err=>{
           console.log(err);
@@ -80,12 +72,6 @@ export default function QuotesTable() {
     }
   },[timers]);
 
-  const columnHeading = [
-    { id: 'time', label: 'Time', minWidth: 100, align: 'left' },
-    { id: 'price', label: 'Price', minWidth: 100, align: 'left' },
-    // { id: 'valid_till', label: 'Valid Till', minWidth: 100, align: 'left' }
-  ];
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -102,38 +88,16 @@ export default function QuotesTable() {
 
   return (
     <Paper sx={{ overflow: 'hidden', margin: 4 }}>
-      <Grid container sx={{p:2}}>
-        <Grid item md={1} xs={2}>
-          <Box onClick={()=>navigate('/')}><Back /></Box>
-        </Grid>
-        <Grid item md={10} xs={8}>
-          <Typography variant='h6' sx={{fontWeight: 'bold', textAlign: 'center', fontSize: {xs: 18, md: 24}}}>{symbol}</Typography>
-        </Grid>
-        <Grid item md={1} xs={2}>
-          <Typography variant='body1' sx={{margin: 0, fontSize: {xs: 14, md: 24}, color:timers<11?'red':'#000'}} >{timers}</Typography>
-        </Grid>
-      </Grid>
+      <QuotesBar timer={timers} symbol={symbol} />
       <TableContainer sx={{ maxHeight: 380, minHeight: 380 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
                 <TableCell align='left' style={{ minWidth: 100, backgroundColor: '#1B9C6E' }}>
-                  <Stack direction='row'>
-                    <Typography sx={{fontWeight: 'bold', color: 'white'}} onClick={()=> handleSort('time')}>Time</Typography>
-                    {
-                      orderby==='time'? asc ? <FaArrowDown color='white' style={{marginLeft: 2, marginTop: 4, marginBottom: 4}}/> :
-                      <FaArrowUp style={{marginLeft: 2, marginTop: 4, marginBottom: 4}} color='white' /> : ""
-                    }
-                  </Stack>
+                    <QuotesHead title='Time' asc={asc} orderby={orderby} handleSort={handleSort} />
                 </TableCell>
                 <TableCell align='left' style={{ minWidth: 100, backgroundColor: '#1B9C6E' }}>
-                  <Stack direction='row'>
-                    <Typography sx={{fontWeight: 'bold', color: 'white'}} onClick={()=> handleSort('price')}>Price</Typography>
-                    {
-                      orderby==='price'? asc ? <FaArrowDown color='white' style={{marginLeft: 2, marginTop: 4, marginBottom: 4}}/> :
-                      <FaArrowUp style={{marginLeft: 2, marginTop: 4, marginBottom: 4}} color='white' /> : <></>
-                    }
-                  </Stack>
+                  <QuotesHead title='Price' asc={asc} orderby={orderby} handleSort={handleSort} />
                 </TableCell>
             </TableRow>
           </TableHead>

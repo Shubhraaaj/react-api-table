@@ -9,21 +9,10 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Autocomplete, Container, TextField, Typography } from '@mui/material';
+import { TextField, Typography } from '@mui/material';
 import Fuse from 'fuse.js'
 
-/**
- * Search functionality - DONE
- * Pages and routing - DONE
- * Page refresh when time expires - DONE
- * Sorting - DONE
- * Pricing and Date utils - DONE
- * Mobile responsive - 1hr
- * CSS - 6hrs
- * UI Changes - 6hrs 
- */
-
-export default function StickyHeadTable() {
+export default function SymbolTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [tickers, setTickers] = useState([]);

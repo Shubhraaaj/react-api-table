@@ -1,9 +1,7 @@
-import Header from "../components/Header/Header";
-import Footer from "../components/Footer/Footer";
-import StickyHeadTable from "../components/StickyHeadTable";
+import SymbolTable from "../components/SymbolTable/SymbolTable";
 
 export default function Stocks () {
     return (
-        <StickyHeadTable />
+        <SymbolTable />
     );
 }
